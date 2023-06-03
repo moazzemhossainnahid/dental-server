@@ -43,6 +43,7 @@ const run = async() => {
         await client.connect();
         const usersCollection = client.db("Dental").collection("Users");
         const doctorsCollection = client.db("Dental").collection("Doctors");
+        const appointmentsCollection = client.db("Dental").collection("Appointments");
 
         // get doctors
         app.get('/doctors', async(req, res) => {
@@ -87,6 +88,52 @@ const run = async() => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const result = await doctorsCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        // get doctors
+        app.get('/appointments', async(req, res) => {
+            const query = {};
+            const doctors = appointmentsCollection.find(query);
+            const result = await doctors.toArray();
+            res.send(result);
+        })
+
+        // get doctor by id
+        app.get('/appointment/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const doctor = await appointmentsCollection.findOne(query);
+            res.send(doctor);
+        })
+
+        // post doctor
+        app.post('/appointment', async(req, res) => {
+            const doctor = req.body;
+            const result = await appointmentsCollection.insertOne(doctor);
+            res.send(result)
+        })
+
+                
+        // update doctor
+        app.put('/updateappointment/:id', async(req, res)=> {
+            const id = req.params.id;
+            const doctor = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = {upsert : true};
+            const updatedDoc = {
+                $set: doctor,
+            };
+            const result = await appointmentsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+
+        })
+
+        // delete doctor
+        app.delete('/appointment/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await appointmentsCollection.deleteOne(query);
             res.send(result);
         })
 
